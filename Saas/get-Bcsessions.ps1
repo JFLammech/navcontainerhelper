@@ -1,33 +1,29 @@
 <#
  .Synopsis
-  Function for retrieving permissionSets from an online Business Central environment
+  Function for retrieving Sessions connected to an online Business Central environment
  .Description
-  Function for retrieving permissionSets from an online Business Central environment
-  Wrapper for https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/administration/api/dynamics_permissionset_get
+  Function for retrieving Sessions connected to an online Business Central environment
+  Wrapper for https://github.com/microsoft/BCTech/blob/master/samples/AdminCenterApi/PowerShell/Sessions.ps1
  .Parameter bcAuthContext
   Authorization Context created by New-BcAuthContext.
  .Parameter applicationFamily
   Application Family in which the environment is located. Default is BusinessCentral.
  .Parameter environment
-  Environment from which you want to return the permissionSets.
- .Parameter CompanyID
-  CompanyID from which you want to return the permissionSets.
+  Environment from which you want to return the Package.
  .Parameter apiVersion
-  API version. Default is v2.0. for automation.
+  API version. Default is v2.20. for admin.
  .Example
   $authContext = New-BcAuthContext -includeDeviceLogin
-  Get-BcpermissionSets -bcAuthContext $authContext -environment "Sandbox" -CompanyID {ID}
+  Get-BcSessions -bcAuthContext $authContext -environment "Sandbox" 
 #>
-function Get-BcpermissionSets {
+function Get-BcSessions {
     Param(
         [Parameter(Mandatory = $true)]
         [Hashtable] $bcAuthContext,
         [string] $applicationFamily = "BusinessCentral",
         [Parameter(Mandatory = $true)]
         [string] $environment,
-        [Parameter(Mandatory = $true)]
-        [string] $CompanyID,
-        [string] $apiVersion = "v2.0"
+        [string] $apiVersion = "v2.20"
     )
 
     $telemetryScope = InitTelemetryScope -name $MyInvocation.InvocationName -parameterValues $PSBoundParameters -includeParameters @()
@@ -37,7 +33,8 @@ function Get-BcpermissionSets {
         $bearerAuthValue = "Bearer $($bcAuthContext.AccessToken)"
         $headers = @{ "Authorization" = $bearerAuthValue }
         try {
-            (Invoke-RestMethod -Method Get -UseBasicParsing -Uri "$($bcContainerHelperConfig.apiBaseUrl.TrimEnd('/'))/$apiVersion/$environment/api/microsoft/automation/$apiVersion/companies(${companyId})/permissionSets" -Headers $headers).Value
+            (Invoke-RestMethod -Method Get -UseBasicParsing -Uri "$($bcContainerHelperConfig.apiBaseUrl.TrimEnd('/'))/admin/$apiVersion/applications/$applicationFamily/environments/$environment/sessions" -Headers $headers).Value
+                        
         }
         catch {
             throw (GetExtendedErrorMessage $_)
@@ -51,4 +48,4 @@ function Get-BcpermissionSets {
         TrackTrace -telemetryScope $telemetryScope
     }
 }
-Export-ModuleMember -Function  Get-BcpermissionSets -Alias  Get-BcpermissionSets
+Export-ModuleMember -Function  Get-BcsecurityGroups -Alias  Get-BcsecurityGroups

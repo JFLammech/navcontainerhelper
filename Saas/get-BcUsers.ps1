@@ -1,24 +1,24 @@
 <#
  .Synopsis
-  Function for retrieving permissionSets from an online Business Central environment
+  Function for retrieving users from an online Business Central environment
  .Description
-  Function for retrieving permissionSets from an online Business Central environment
-  Wrapper for https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/administration/api/dynamics_permissionset_get
+  Function for retrieving users from an online Business Central environment
+  Wrapper for https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/administration/api/dynamics_user_get
  .Parameter bcAuthContext
   Authorization Context created by New-BcAuthContext.
  .Parameter applicationFamily
   Application Family in which the environment is located. Default is BusinessCentral.
- .Parameter environment
-  Environment from which you want to return the permissionSets.
  .Parameter CompanyID
-  CompanyID from which you want to return the permissionSets.
+  CompanyID from which you want to return the Package.
+ .Parameter environment
+  Environment from which you want to return the companies.
  .Parameter apiVersion
   API version. Default is v2.0. for automation.
  .Example
   $authContext = New-BcAuthContext -includeDeviceLogin
-  Get-BcpermissionSets -bcAuthContext $authContext -environment "Sandbox" -CompanyID {ID}
+  Get-Bcusers -bcAuthContext $authContext -environment "Sandbox" -CompanyID {CompanyID}
 #>
-function Get-BcpermissionSets {
+function Get-Bcusers {
     Param(
         [Parameter(Mandatory = $true)]
         [Hashtable] $bcAuthContext,
@@ -37,8 +37,8 @@ function Get-BcpermissionSets {
         $bearerAuthValue = "Bearer $($bcAuthContext.AccessToken)"
         $headers = @{ "Authorization" = $bearerAuthValue }
         try {
-            (Invoke-RestMethod -Method Get -UseBasicParsing -Uri "$($bcContainerHelperConfig.apiBaseUrl.TrimEnd('/'))/$apiVersion/$environment/api/microsoft/automation/$apiVersion/companies(${companyId})/permissionSets" -Headers $headers).Value
-        }
+            (Invoke-RestMethod -Method Get -UseBasicParsing -Uri "$($bcContainerHelperConfig.apiBaseUrl.TrimEnd('/'))/$apiVersion/$environment/api/microsoft/automation/v2.0/companies(${CompanyID})/users()" -Headers $headers).Value
+            }
         catch {
             throw (GetExtendedErrorMessage $_)
         }
@@ -51,4 +51,4 @@ function Get-BcpermissionSets {
         TrackTrace -telemetryScope $telemetryScope
     }
 }
-Export-ModuleMember -Function  Get-BcpermissionSets -Alias  Get-BcpermissionSets
+#Export-ModuleMember -Function  Get-BcscheduledJobs -Alias  Get-BcscheduledJobs
